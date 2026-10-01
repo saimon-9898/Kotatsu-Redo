@@ -16,12 +16,14 @@ jobs:
           distribution: temurin
           java-version: '17'
 
-      - uses: android-actions/setup-android@v3
-
+      # android-actions/setup-android is deliberately NOT used: it runs
+      # `sdkmanager tools`, and that package no longer exists in the SDK repo,
+      # so the action exits 1. The runner image already ships cmdline-tools.
       - name: Install SDK packages
         run: |
-          sdkmanager --licenses <<< "y" || true
-          sdkmanager "platforms;android-37" "platform-tools"
+          SDKMANAGER="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platforms;android-37" "platform-tools"
 
       - uses: gradle/actions/setup-gradle@v4
 
