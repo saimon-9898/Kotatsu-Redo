@@ -74,6 +74,23 @@ private fun PreferenceFragmentCompat.addPreferencesFromParserRepository(reposito
 				}
 			}
 
+			is ConfigKey.ApiKey -> {
+				EditTextPreference(screen.context).apply {
+					summaryProvider = EditTextDefaultSummaryProvider(key.defaultValue)
+					setOnBindEditTextListener(
+						EditTextBindListener(
+							// Masked: this is a credential, not a domain.
+							inputType = EditorInfo.TYPE_CLASS_TEXT or
+								EditorInfo.TYPE_TEXT_VARIATION_PASSWORD,
+							hint = key.defaultValue,
+							validator = null,
+						),
+					)
+					setTitle(R.string.api_key)
+					setDialogTitle(R.string.api_key)
+				}
+			}
+
 			is ConfigKey.ShowSuspiciousContent -> {
 				SwitchPreferenceCompat(screen.context).apply {
 					setDefaultValue(key.defaultValue)

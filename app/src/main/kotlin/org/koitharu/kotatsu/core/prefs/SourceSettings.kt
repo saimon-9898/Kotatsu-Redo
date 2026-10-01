@@ -56,6 +56,12 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 				.ifNullOrEmpty { key.defaultValue }
 				.sanitizeHeaderValue()
 
+			// Never fall back to a baked-in value here: the default is always empty so a missing
+			// key is reported as such instead of silently using a shipped credential.
+			is ConfigKey.ApiKey -> prefs.getString(key.key, key.defaultValue)
+				?.nullIfEmpty()
+				?: key.defaultValue
+
 			is ConfigKey.Domain -> prefs.getString(key.key, key.defaultValue)
 				?.trim()
 				?.takeIf { DomainValidator.isValidDomain(it) }
@@ -74,6 +80,9 @@ class SourceSettings(context: Context, source: MangaSource) : MangaSourceConfig 
 			is ConfigKey.Domain -> putString(key.key, value as String?)
 			is ConfigKey.ShowSuspiciousContent -> putBoolean(key.key, value as Boolean)
 			is ConfigKey.UserAgent -> putString(key.key, (value as String?)?.sanitizeHeaderValue())
+			// Sanitized like a header value: it is sent as a header, and a stray newline in a
+			// header is a request-splitting hazard rather than a helpful paste.
+			is ConfigKey.ApiKey -> putString(key.key, (value as String?)?.sanitizeHeaderValue())
 			is ConfigKey.SplitByTranslations -> putBoolean(key.key, value as Boolean)
 			is ConfigKey.PreferredImageServer -> putString(key.key, value as String? ?: "")
             is ConfigKey.InterceptCloudflare -> putBoolean(key.key, value as Boolean)
