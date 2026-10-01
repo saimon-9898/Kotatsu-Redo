@@ -79,6 +79,10 @@ android {
 		def appLinkHost = 'kotatsuredo.app'
 		manifestPlaceholders = [appLinkHost: appLinkHost]
 		buildConfigField 'String', 'APP_LINK_HOST', "\"${appLinkHost}\""
+
+		// Pornhwa DB API key - never hardcoded, loaded from local.properties or PORNHWA_API_KEY env var
+		def pornhwaApiKey = readSecret('pornhwa_api_key', 'PORNHWA_API_KEY')
+		buildConfigField 'String', 'PORNHWA_API_KEY', "\"${pornhwaApiKey}\""
 	}
 	buildTypes {
 		debug {
